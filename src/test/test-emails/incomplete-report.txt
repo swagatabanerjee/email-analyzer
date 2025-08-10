@@ -1,0 +1,12 @@
+Subject: Incomplete Bug Report
+From: user@company.com
+To: support@company.com
+Date: 2025-08-10T15:00:00Z
+
+Hi Support,
+
+The system is not working properly.
+
+Something is wrong with the login page, please check.
+
+Thanks

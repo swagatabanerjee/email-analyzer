@@ -1,0 +1,36 @@
+Subject: [BUG] Critical Authentication Failure in Production
+From: developer@company.com
+To: support@company.com
+Date: 2025-08-10T10:00:00Z
+
+Dear Team,
+
+We have identified a critical authentication issue in the production environment.
+
+Steps to Reproduce:
+1. Attempt to login with valid credentials
+2. System shows 500 error
+3. Users unable to access their accounts
+
+Impact: All users are affected
+Severity: High
+Environment: Production
+Account Number: ACC123456
+Customer ID: CUST789
+
+--ATTACHMENT--
+Filename: error_log.txt
+Content-Type: text/plain
+Content: 
+[ERROR] 2025-08-10T09:55:00Z Authentication service failure
+Exception: NullPointerException at AuthService.java:120
+Stack trace: 
+    at com.company.auth.AuthService.authenticate(AuthService.java:120)
+    at com.company.auth.AuthController.login(AuthController.java:45)
+--END-ATTACHMENT--
+
+--ATTACHMENT--
+Filename: screenshot.png
+Content-Type: image/png
+Content: Base64EncodedErrorScreenshot==
+--END-ATTACHMENT--

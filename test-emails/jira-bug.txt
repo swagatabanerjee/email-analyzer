@@ -1,0 +1,94 @@
+Subject: [BUG] Critical Performance Regression in Production API
+From: developer@company.com
+To: support@company.com
+Date: 2025-08-10T12:30:00Z
+
+JIRA BUG REPORT
+Priority: Critical
+Component: API Service
+Affects Version: 2.5.0
+
+Account Number: ACC333444
+
+Bug Description:
+Severe performance degradation observed in the REST API endpoints after the latest deployment.
+
+Technical Details:
+- Response times increased from 100ms to 2000ms
+- Affects all API endpoints under /v2/transactions
+- Memory usage spike observed
+- Database connections not being released properly
+
+Impact:
+- All production API clients affected
+- Timeout errors increasing
+- Customer transactions failing
+- System resources depleting
+
+--ATTACHMENT--
+Filename: performance_metrics.txt
+Content-Type: text/plain
+Content: Performance Analysis Report
+Date: 2025-08-10
+Time Range: 10:00 - 12:00 UTC
+
+Metrics:
+1. Response Time
+   - Before: avg 100ms
+   - After: avg 2000ms
+   - P95: 3500ms
+   - P99: 5000ms
+
+2. Error Rate
+   - 500 errors: 15%
+   - Timeout errors: 25%
+   - Connection errors: 10%
+
+3. Resource Usage
+   - CPU: 90%
+   - Memory: 85%
+   - DB Connections: 95%
+
+Stack Trace:
+Exception in thread "main" java.lang.OutOfMemoryError
+    at com.company.api.TransactionService.processRequest(TransactionService.java:125)
+    at com.company.api.Controller.handleTransaction(Controller.java:89)
+--END-ATTACHMENT--
+
+--ATTACHMENT--
+Filename: code_diff.txt
+Content-Type: text/plain
+Content: Git Diff of Recent Changes:
+commit abc123def456
+Date: 2025-08-10T09:00:00Z
+
+diff --git a/src/main/java/com/company/api/TransactionService.java b/src/main/java/com/company/api/TransactionService.java
+--- a/src/main/java/com/company/api/TransactionService.java
++++ b/src/main/java/com/company/api/TransactionService.java
+@@ -124,7 +124,7 @@
+-    connection.close();
++    // connection.close(); // Temporarily disabled for debugging
+     return response;
+ }
+--END-ATTACHMENT--
+
+Steps to Reproduce:
+1. Send any request to /v2/transactions endpoints
+2. Observe response time > 2000ms
+3. Monitor server resources
+4. Check error logs
+
+Workaround:
+- None available
+- Rolling back not possible due to data schema changes
+
+Required Actions:
+1. Immediate investigation
+2. Hot fix needed
+3. Roll forward plan
+4. Customer communication
+
+Please create Jira ticket and alert the API team.
+
+Best regards,
+Development Team

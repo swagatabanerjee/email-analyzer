@@ -1,0 +1,34 @@
+Subject: [Feature Request] Dark Mode Implementation
+From: product@company.com
+To: development@company.com
+Date: 2025-08-10T11:00:00Z
+
+Hi Development Team,
+
+We'd like to request a new feature implementation for dark mode support.
+
+Feature Details:
+- System-wide dark mode support
+- User preference persistence
+- Automatic switching based on system preferences
+
+Business Value:
+- Improved user experience
+- Reduced eye strain
+- Competitive feature parity
+
+Account Number: ACC789012
+Customer ID: CUST456
+Priority: Medium
+Target Release: Q4 2025
+
+Technical Requirements:
+1. CSS variable system for theming
+2. Local storage for preferences
+3. System preference detection API
+
+--ATTACHMENT--
+Filename: mockups.pdf
+Content-Type: application/pdf
+Content: Base64EncodedDesignMockups==
+--END-ATTACHMENT--

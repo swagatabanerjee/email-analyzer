@@ -1,0 +1,22 @@
+Subject: Request for Additional User License
+From: manager@company.com
+To: support@company.com
+Date: 2025-08-10T14:00:00Z
+
+Hi IT Support,
+
+We need to request an additional user license for a new team member.
+
+Request Details:
+- New Employee: Jane Smith
+- Start Date: 2025-08-15
+- Department: Engineering
+- Required Software: Visual Studio, Adobe Creative Suite
+
+Account Number: ACC567890
+Cost Center: CC123456
+
+Please process this request before the start date.
+
+Best regards,
+Team Manager

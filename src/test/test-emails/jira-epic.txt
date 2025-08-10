@@ -1,0 +1,35 @@
+Subject: [EPIC] Mobile App Modernization
+From: product.owner@company.com
+To: development@company.com
+Date: 2025-08-10T12:00:00Z
+
+Team,
+
+This epic outlines our mobile app modernization initiative for 2025.
+
+Epic Overview:
+- Upgrade to latest React Native version
+- Implement new design system
+- Performance optimization
+- Analytics integration
+
+Business Goals:
+- 50% performance improvement
+- 30% reduction in app size
+- 99.9% crash-free sessions
+
+Account Number: ACC345678
+Customer ID: CUST123
+Priority: High
+Timeline: Q3-Q4 2025
+
+Dependencies:
+- Design System completion
+- Backend API updates
+- Analytics platform setup
+
+--ATTACHMENT--
+Filename: roadmap.xlsx
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+Content: Base64EncodedRoadmap==
+--END-ATTACHMENT--

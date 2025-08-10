@@ -1,0 +1,29 @@
+Subject: Bug Report: Application Crash in Production
+From: customer@example.com
+To: support@company.com
+Date: Wed, 10 Aug 2025 09:00:00 GMT
+
+Hi Support Team,
+
+I'm experiencing a critical issue with the application crashing during peak hours. This is affecting our business operations.
+
+Details:
+- Application Version: 2.1.0
+- Account Number: ACC123456
+- Error Message: "NullPointerException in ProcessManager.java:120"
+- Frequency: Every 2-3 hours during high load
+
+Steps to Reproduce:
+1. Process multiple transactions simultaneously
+2. Monitor server memory usage
+3. Application crashes after memory spikes
+
+Please investigate and provide a fix as soon as possible.
+
+Best regards,
+John Doe
+
+--ATTACHMENT--
+Filename: error_log.txt
+Content-Type: text/plain
+Content: Error Stack Trace: Exception in thread "main" java.lang.NullPointerException at ProcessManager.process(ProcessManager.java:120)

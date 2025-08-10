@@ -1,0 +1,35 @@
+Subject: Suggestion: Dashboard Customization
+From: test@example.com
+To: support@company.com
+Date: 2025-08-10T13:54:56.761Z
+
+Dear Support Team,
+
+I would like to request a new feature with low priority.
+
+Feature Details: Optional feature request
+
+Business Value: Quality of life enhancement
+Target Users: [User Group]
+Proposed Timeline: Future roadmap
+
+Account Number: ACC567890
+
+--ATTACHMENT--
+Filename: error_log.txt
+Content-Type: text/plain
+Content: Error: NullPointerException at line 120
+Stack trace: ...
+--END-ATTACHMENT--
+
+--ATTACHMENT--
+Filename: screenshot.png
+Content-Type: image/png
+Content: Base64EncodedImageContent...
+--END-ATTACHMENT--
+
+--ATTACHMENT--
+Filename: config.json
+Content-Type: application/json
+Content: {"debug": true, "environment": "production"}
+--END-ATTACHMENT--

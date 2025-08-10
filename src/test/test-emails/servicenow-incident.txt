@@ -1,0 +1,31 @@
+Subject: Password Reset Not Working
+From: user@company.com
+To: support@company.com
+Date: 2025-08-10T13:00:00Z
+
+Hello Support,
+
+I'm having trouble resetting my password.
+
+Issue Description:
+- Click on "Forgot Password"
+- Enter email address
+- No reset email received after 30 minutes
+
+System Details:
+Browser: Chrome 115
+OS: Windows 11
+Time of Issue: 2025-08-10 12:45 PM EST
+
+Customer ID: CUST789
+
+Please help resolve this urgently as I cannot access my account.
+
+--ATTACHMENT--
+Filename: browser_log.txt
+Content-Type: text/plain
+Content: 
+[INFO] Password reset request initiated
+[ERROR] Email service timeout
+[ERROR] Retry attempt failed
+--END-ATTACHMENT--

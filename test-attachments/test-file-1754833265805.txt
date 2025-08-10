@@ -1,0 +1,4 @@
+ERROR: System failure detected
+Timestamp: 2025-08-10T10:00:00Z
+Stack trace: ...
+Severity: High

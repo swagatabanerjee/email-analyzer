@@ -1,0 +1,500 @@
+import * as vscode from 'vscode';
+
+export function activate(context: vscode.ExtensionContext) {
+    // Register command
+    let disposable = vscode.commands.registerCommand('email-analyzer.start', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage('Please open an email file first.');
+            return;
+        }
+
+        // Get email content
+        const emailText = editor.document.getText();
+        vscode.window.showInformationMessage('Starting email analysis...');
+
+        // Display the email content
+        const panel = vscode.window.createWebviewPanel(
+            'emailAnalysis',
+            'Email Analysis',
+            vscode.ViewColumn.Beside,
+            {}
+        );
+
+        panel.webview.html = `<!DOCTYPE html>
+        <html>
+            <head>
+                <style>
+                    body { padding: 20px; font-family: system-ui; }
+                    pre { background: #f4f4f4; padding: 10px; }
+                </style>
+            </head>
+            <body>
+                <h2>Email Content</h2>
+                <pre>${emailText}</pre>
+            </body>
+        </html>`;
+    });
+
+    context.subscriptions.push(disposable);
+}
+
+export function deactivate() {}
+            
+            try {
+                const result = await vscode.commands.executeCommand('email-analyzer.analyzeEmail');
+                const panel = vscode.window.createWebviewPanel(
+                    'emailAnalysis',
+                    'Email Analysis Result',
+                    vscode.ViewColumn.One,
+                    {}
+                );
+                
+                panel.webview.html = `<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Email Analysis Result</title>
+                    <style>
+                        body { padding: 20px; }
+                        pre { background: #f0f0f0; padding: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Email Analysis Result</h2>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                </body>
+                </html>`;
+            } catch (error) {
+                if (error instanceof Error) {
+                    vscode.window.showErrorMessage(`Error analyzing email: ${error.message}`);
+                } else {
+                    vscode.window.showErrorMessage('An unknown error occurred while analyzing the email.');
+                }
+            }
+        })
+    );
+
+    // Register commands
+    const analyzeEmailHandler = async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage('Please open an email file to analyze');
+            return;
+        }
+
+        try {
+            const emailContent = editor.document.getText();
+            const parsedEmail = parseEmail(emailContent);
+            
+            // Validate mandatory subject
+            if (!parsedEmail.headers.subject) {
+                throw new Error('Email subject is mandatory');
+            }
+
+            const analysis = await analyzeEmail(parsedEmail);
+            displayAnalysis(analysis);
+            return analysis; // Return for testing purposes
+        } catch (error) {
+            vscode.window.showErrorMessage(`Error analyzing email: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            throw error; // Re-throw for testing purposes
+        }
+    };
+
+    const analyzeBulkEmailHandler = async () => {
+        const uris = await vscode.window.showOpenDialog({
+            canSelectFiles: true,
+            canSelectFolders: true,
+            canSelectMany: true,
+            filters: { 'Email Files': ['txt', 'eml', 'msg'] }
+        });
+        if (!uris || uris.length === 0) {
+            vscode.window.showErrorMessage('No email files selected.');
+            return;
+        }
+
+        const results: BulkEmailResult[] = [];
+        for (const uri of uris) {
+            try {
+                const doc = await vscode.workspace.openTextDocument(uri);
+                const parsedEmail = parseEmail(doc.getText());
+                if (!parsedEmail.headers.subject) {
+                    results.push({ file: uri.fsPath, status: 'error', action: 'Human Review', reason: 'Missing subject' });
+                    continue;
+                }
+                const analysis = await analyzeEmail(parsedEmail);
+                const agentResult = await agenticFlow(parsedEmail, analysis);
+                results.push({ file: uri.fsPath, status: 'success', ...agentResult });
+            } catch (err) {
+                results.push({ file: uri.fsPath, status: 'error', action: 'Human Review', reason: err instanceof Error ? err.message : 'Unknown error' });
+            }
+        }
+        displayBulkResults(results);
+    };
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('email-analyzer.analyzeEmail', analyzeEmailHandler),
+        vscode.commands.registerCommand('email-analyzer.analyzeBulkEmails', analyzeBulkEmailHandler)
+    );
+
+
+// Bulk email result type
+interface BulkEmailResult {
+    file: string;
+    status: 'success' | 'error';
+    action: 'Jira' | 'ServiceNow' | 'Human Review';
+    requestId?: string;
+    reason?: string;
+    summary?: string;
+}
+// Agentic flow: decide where to log or route the request
+async function agenticFlow(parsedEmail: ParsedEmail, analysis: EmailAnalysis): Promise<{ action: 'Jira' | 'ServiceNow' | 'Human Review'; requestId?: string; summary?: string; reason?: string }> {
+    // Extract intent, request type, and customer ID
+    const intent = analysis.requestType.toLowerCase();
+    const customerId = analysis.accountNumber || analysis.additionalFields['customerId'] || '';
+    // Simple routing logic (can be made more sophisticated)
+    if (!intent || !customerId) {
+        return { action: 'Human Review', reason: 'Missing intent or customer ID' };
+    }
+    if (intent.includes('incident') || intent.includes('bug') || intent.includes('issue')) {
+        // Log in Jira
+        const requestId = await logInJira(parsedEmail, analysis, customerId);
+        return { action: 'Jira', requestId, summary: analysis.keyPoints.join('; ') };
+    } else if (intent.includes('service') || intent.includes('request') || intent.includes('access')) {
+        // Log in ServiceNow
+        const requestId = await logInServiceNow(parsedEmail, analysis, customerId);
+        return { action: 'ServiceNow', requestId, summary: analysis.keyPoints.join('; ') };
+    }
+    // Otherwise, send to human review
+    return { action: 'Human Review', reason: 'Intent not clear or not mapped to tool' };
+}
+
+// Stub: Log request in Jira
+async function logInJira(parsedEmail: ParsedEmail, analysis: EmailAnalysis, customerId: string): Promise<string> {
+    // Get credentials from VS Code settings
+    const config = vscode.workspace.getConfiguration('emailAnalyzer');
+    const jiraUrl = config.get<string>('jiraUrl') || process.env.EMAILANALYZER_JIRAURL;
+    const jiraUser = config.get<string>('jiraUser') || process.env.EMAILANALYZER_JIRAUSER;
+    const jiraToken = config.get<string>('jiraToken') || process.env.EMAILANALYZER_JIRATOKEN;
+    if (!jiraUrl || !jiraUser || !jiraToken) {
+        throw new Error('Jira API credentials not configured');
+    }
+    // Prepare payload
+    const payload = {
+        fields: {
+            project: { key: 'SRV' },
+            summary: analysis.keyPoints.join('; '),
+            description: `Customer ID: ${customerId}\nRequest Type: ${analysis.requestType}\nDetails: ${analysis.actionItems.join('; ')}`,
+            issuetype: { name: 'Task' },
+            customfield_10000: customerId // Example custom field for customer ID
+        }
+    };
+    // Call Jira REST API
+    try {
+        const response = await fetch(`${jiraUrl}/rest/api/2/issue`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${Buffer.from(`${jiraUser}:${jiraToken}`).toString('base64')}`
+            },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`Jira API error: ${response.statusText}`);
+        }
+    const data = await response.json() as { key?: string };
+    return data.key || 'JIRA-UNKNOWN';
+    } catch (err) {
+        throw new Error(`Jira API call failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+}
+
+// Function to parse email content
+function parseEmail(content: string): ParsedEmail {
+    // Extract headers using regex
+    const headerRegex = /^(?<key>[A-Za-z-]+):\s*(?<value>.+)$/gm;
+    const headers: EmailHeader = { subject: '' };
+    
+    // Split content into headers and body
+    const [headerSection, ...bodyParts] = content.split('\n\n');
+    
+    // Parse headers
+    for (const match of headerSection.matchAll(headerRegex)) {
+        const key = match.groups?.key.toLowerCase();
+        const value = match.groups?.value;
+        if (key && value) {
+            switch (key) {
+                case 'subject':
+                    headers.subject = value;
+                    break;
+                case 'from':
+                    headers.from = value;
+                    break;
+                case 'to':
+                    headers.to = value;
+                    break;
+                case 'date':
+                    headers.date = value;
+                    break;
+            }
+        }
+    }
+
+    // Extract attachments using regex
+    const attachments: EmailAttachment[] = [];
+    const attachmentRegex = /--ATTACHMENT--\r?\n+Filename:\s*(.*?)\r?\n+Content-Type:\s*(.*?)\r?\n+Content:\s*([^]*?)\r?\n+--END-ATTACHMENT--/gs;
+    const bodyContent = bodyParts.join('\n\n');
+    const bodyWithoutAttachments = bodyContent.replace(/--ATTACHMENT--[\s\S]*?--END-ATTACHMENT--/g, '');
+    
+    for (const bodyPart of bodyContent.matchAll(attachmentRegex)) {
+        const [fullMatch, filename, contentType, base64Content] = bodyPart;
+        try {
+            // Decode base64 content
+            const decodedContent = Buffer.from(base64Content.trim(), 'base64').toString('utf-8');
+            
+            // Create attachment with appropriate parsed content
+            const attachment: EmailAttachment = {
+                filename,
+                contentType,
+                content: decodedContent,
+                ...(contentType === 'text/csv' && {
+                    parsedContent: decodedContent.split('\n')
+                        .filter(line => line.trim())
+                        .map(line => {
+                            const [header, ...values] = line.split(',');
+                            return { [header.trim()]: values[0]?.trim() };
+                        })
+                        .reduce((obj: any, item) => ({ ...obj, ...item }), {})
+                }),
+                ...(contentType === 'application/pdf' && {
+                    extractedText: decodedContent
+                })
+            };
+            console.log('Processed attachment:', {
+                filename,
+                contentType,
+                rawLength: base64Content?.length,
+                decodedLength: decodedContent?.length,
+                preview: decodedContent?.slice(0, 50)
+            });
+            attachments.push(attachment);
+        } catch (err) {
+            console.error('Failed to decode attachment:', err);
+        }
+    }
+
+    return {
+        headers,
+        body: bodyWithoutAttachments.trim() || undefined,
+        attachments
+    };
+}
+
+// Stub: Log request in ServiceNow
+async function logInServiceNow(parsedEmail: ParsedEmail, analysis: EmailAnalysis, customerId: string): Promise<string> {
+    // Get credentials from VS Code settings
+    const config = vscode.workspace.getConfiguration('emailAnalyzer');
+    const snowUrl = config.get<string>('serviceNowUrl') || process.env.EMAILANALYZER_SERVICENOWURL;
+    const snowUser = config.get<string>('serviceNowUser') || process.env.EMAILANALYZER_SERVICENOWUSER;
+    const snowToken = config.get<string>('serviceNowToken') || process.env.EMAILANALYZER_SERVICENOWTOKEN;
+    if (!snowUrl || !snowUser || !snowToken) {
+        throw new Error('ServiceNow API credentials not configured');
+    }
+    // Prepare payload
+    const payload = {
+        short_description: analysis.keyPoints.join('; '),
+        description: `Customer ID: ${customerId}\nRequest Type: ${analysis.requestType}\nDetails: ${analysis.actionItems.join('; ')}`,
+        caller_id: customerId
+    };
+    // Call ServiceNow REST API
+    try {
+        const response = await fetch(`${snowUrl}/api/now/table/incident`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Basic ${Buffer.from(`${snowUser}:${snowToken}`).toString('base64')}`
+            },
+            body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+            throw new Error(`ServiceNow API error: ${response.statusText}`);
+        }
+    const data = await response.json() as { result?: { number?: string } };
+    return data.result?.number || 'SNOW-UNKNOWN';
+    } catch (err) {
+        throw new Error(`ServiceNow API call failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+}
+
+// Display bulk results in a webview
+function displayBulkResults(results: BulkEmailResult[]) {
+    const panel = vscode.window.createWebviewPanel(
+        'bulkEmailResults',
+        'Bulk Email Analysis Results',
+        vscode.ViewColumn.Beside,
+        { enableScripts: true }
+    );
+    panel.webview.html = `<!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body { font-family: var(--vscode-font-family); padding: 20px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            th { background: #eee; }
+            .success { color: #228B22; }
+            .error { color: #B22222; }
+        </style>
+    </head>
+    <body>
+        <h2>Bulk Email Analysis Results</h2>
+        <table>
+            <tr>
+                <th>File</th>
+                <th>Status</th>
+                <th>Action</th>
+                <th>Request ID</th>
+                <th>Summary / Reason</th>
+            </tr>
+            ${results.map(r => `
+                <tr>
+                    <td>${r.file}</td>
+                    <td class="${r.status}">${r.status}</td>
+                    <td>${r.action}</td>
+                    <td>${r.requestId || ''}</td>
+                    <td>${r.summary || r.reason || ''}</td>
+                </tr>
+            `).join('')}
+        </table>
+    </body>
+    </html>`;
+}
+async function analyzeEmail(parsedEmail: ParsedEmail): Promise<EmailAnalysis> {
+    try {
+        // Select a chat model
+        const models: any[] = await vscode.commands.executeCommand('vscode.lm.selectChatModels');
+        if (!models || models.length === 0) {
+            throw new Error('No language model available');
+        }
+        const model = models[0];
+
+        // Create the analysis prompt with combined content from email and attachments
+        const message = {
+            content: `Analyze this email and its attachments to extract the following information:
+            1. Request type (e.g., bug report, feature request, support inquiry, etc.) - Look in subject, body, and attachments
+            2. Priority level (high, medium, or low)
+            3. Key points (max 3)
+            4. Action items (if any)
+            5. Account number (if present in any part of the email or attachments)
+            6. Any other relevant fields found in attachments
+
+            Email subject: ${parsedEmail.headers.subject}
+            Email body:
+            ${parsedEmail.body || '(No body content)'}
+
+            Attachments:
+            ${parsedEmail.attachments.map(att => `
+            Filename: ${att.filename}
+            Type: ${att.contentType}
+            Content: ${att.content}
+            ${att.parsedContent ? `Parsed Content: ${JSON.stringify(att.parsedContent)}` : ''}
+            ${att.extractedText ? `Extracted Text: ${att.extractedText}` : ''}
+            `).join('\n')}
+
+            Return the analysis in this JSON format:
+            {
+                "requestType": "string",
+                "priority": "high|medium|low",
+                "keyPoints": ["string"],
+                "actionItems": ["string"],
+                "accountNumber": "string (if found)",
+                "additionalFields": {
+                    "fieldName": "value"
+                }
+            }`,
+            role: 'user'
+        };
+
+        // Send request to the language model
+        const response = await model.sendRequest([message]);
+        const result = await response.text;
+
+        // Parse the JSON response and include attachments
+        const analysis = JSON.parse(result) as EmailAnalysis;
+        analysis.attachments = parsedEmail.attachments;
+        return analysis;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(`Language model error: ${error.message}`);
+        }
+        throw error;
+    }
+}
+
+function displayAnalysis(analysis: EmailAnalysis) {
+    // Create and show the analysis in a new webview panel
+    const panel = vscode.window.createWebviewPanel(
+        'emailAnalysis',
+        'Email Analysis',
+        vscode.ViewColumn.Beside,
+        { enableScripts: true }
+    );
+
+    panel.webview.html = `<!DOCTYPE html>
+    <html>
+        <head>
+            <style>
+                body { font-family: var(--vscode-font-family); padding: 20px; }
+                .section { margin-bottom: 20px; }
+                .title { font-weight: bold; margin-bottom: 5px; }
+                .priority-high { color: #f14c4c; }
+                .priority-medium { color: #e0af4f; }
+                .priority-low { color: #3794ff; }
+                ul { margin: 0; padding-left: 20px; }
+                .field { margin-bottom: 8px; }
+                .field-name { color: var(--vscode-textPreformat-foreground); }
+            </style>
+        </head>
+        <body>
+            <div class="section">
+                <div class="title">Request Type:</div>
+                ${analysis.requestType}
+            </div>
+            <div class="section">
+                <div class="title">Priority:</div>
+                <span class="priority-${analysis.priority.toLowerCase()}">${analysis.priority}</span>
+            </div>
+            ${analysis.accountNumber ? `
+            <div class="section">
+                <div class="title">Account Number:</div>
+                ${analysis.accountNumber}
+            </div>
+            ` : ''}
+            <div class="section">
+                <div class="title">Key Points:</div>
+                <ul>
+                    ${analysis.keyPoints.map(point => `<li>${point}</li>`).join('')}
+                </ul>
+            </div>
+            <div class="section">
+                <div class="title">Action Items:</div>
+                <ul>
+                    ${analysis.actionItems.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            </div>
+            ${Object.keys(analysis.additionalFields).length > 0 ? `
+            <div class="section">
+                <div class="title">Additional Fields:</div>
+                ${Object.entries(analysis.additionalFields).map(([key, value]) => `
+                    <div class="field">
+                        <span class="field-name">${key}:</span> ${value}
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+        </body>
+    </html>`;
+}
+
+}

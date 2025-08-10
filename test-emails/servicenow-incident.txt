@@ -1,0 +1,62 @@
+Subject: [INCIDENT] System Access Issues - Multiple Users Affected
+From: helpdesk@company.com
+To: support@company.com
+Date: 2025-08-10T12:00:00Z
+
+SERVICENOW INCIDENT
+Priority: High
+Impact: Multiple Users
+Category: Access Management
+
+Description:
+Multiple users are reporting inability to access the customer portal. SSO authentication is failing intermittently.
+
+Account Number: ACC777888
+
+Current Status:
+- 50+ users affected
+- Started: 2025-08-10 11:30 UTC
+- Ongoing issue
+- Multiple locations impacted
+
+User Impact:
+- Unable to login to customer portal
+- Receiving "Authentication Failed" errors
+- Some sessions being terminated unexpectedly
+
+Business Impact:
+- Customer support queue increasing
+- SLA at risk
+- Revenue-generating activities blocked
+
+--ATTACHMENT--
+Filename: error_details.txt
+Content-Type: text/plain
+Content: Service Now Incident Details
+Error Code: AUTH_SSO_500
+Time: 2025-08-10 11:30:00 UTC
+Failed Login Attempts: 127
+Affected Regions: NA, EU, APAC
+System Status:
+- SSO Service: Degraded
+- Database: Online
+- Load Balancer: Online
+Error Message: "SAML assertion validation failed"
+--END-ATTACHMENT--
+
+Troubleshooting Done:
+1. Verified network connectivity
+2. Checked SSO provider status
+3. Reviewed recent changes
+4. Monitored error logs
+
+Required Actions:
+1. Immediate investigation
+2. User communication
+3. SLA monitoring
+4. Incident escalation
+
+Please create high-priority incident ticket and engage authentication team.
+
+Best regards,
+IT Service Desk

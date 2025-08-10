@@ -1,0 +1,49 @@
+Subject: Support Request: Need Help with Report Configuration
+From: user@company.com
+To: support@company.com
+Date: 2025-08-10T10:45:00Z
+
+Hello Support Team,
+
+I need assistance with configuring custom reports in the system.
+
+Issue:
+I'm trying to create a custom report with specific filters and grouping, but I'm having trouble with the following:
+- Setting up date range filters
+- Configuring group-by clauses
+- Adding calculated columns
+
+Current Setup:
+- Using web interface
+- Chrome browser
+- System version 2.5.0
+
+Account Number: ACC345678
+
+What I've Tried:
+1. Followed documentation steps
+2. Checked FAQ section
+3. Tried different browsers
+
+Can you please provide step-by-step guidance?
+
+--ATTACHMENT--
+Filename: current-config.txt
+Content-Type: text/plain
+Content: {
+  "reportConfig": {
+    "filters": {
+      "dateRange": "last30days",
+      "status": "active"
+    },
+    "groupBy": ["department", "category"],
+    "calculations": {
+      "total": "sum",
+      "average": "mean"
+    }
+  }
+}
+--END-ATTACHMENT--
+
+Thanks in advance,
+Alice User

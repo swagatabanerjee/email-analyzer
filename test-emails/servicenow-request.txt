@@ -1,0 +1,68 @@
+Subject: [SERVICE REQUEST] New Department Setup - Marketing Team
+From: operations@company.com
+To: support@company.com
+Date: 2025-08-10T12:15:00Z
+
+SERVICENOW SERVICE REQUEST
+Category: Department Setup
+Priority: Medium
+Timeline: Due by 2025-08-15
+
+Account Number: ACC555666
+
+Request Details:
+Please set up IT resources for new Marketing Department (15 users)
+
+Required Setup:
+1. User Accounts
+   - Email accounts
+   - System access
+   - Collaboration tools
+   - VPN access
+
+2. Hardware Requirements
+   - 10 Standard laptops
+   - 5 Design workstations
+   - 2 Network printers
+
+3. Software Requirements
+   - Adobe Creative Suite
+   - Microsoft Office 365
+   - Slack Enterprise
+   - Zoom Business
+
+--ATTACHMENT--
+Filename: department_setup.txt
+Content-Type: text/plain
+Content: Department Setup Requirements
+Location: Floor 3, West Wing
+Start Date: 2025-08-15
+Users List:
+1. Sarah Johnson - Marketing Director
+2. Mike Chen - Creative Lead
+3. Lisa Wong - Content Manager
+4. [Additional team members...]
+
+Network Requirements:
+- VLAN setup
+- Printer configuration
+- Wireless access
+- Network storage allocation
+
+Security Requirements:
+- Standard marketing policy
+- Design assets access
+- Social media policy
+- Brand guidelines access
+--END-ATTACHMENT--
+
+Additional Information:
+- Budget approved
+- Hardware ordered
+- Licenses purchased
+- Floor space ready
+
+Please create service request ticket for IT Operations team.
+
+Regards,
+Operations Team
